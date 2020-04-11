@@ -32,15 +32,18 @@
                 </a>
             </div>
             <div class="level01">
-                <a href="./article_list.html">
+                <a href="./article_list.html" target="main_frame">
                     <i class="iconfont icon-icon-article"></i>
                     <span>文章管理</span>
                     <b class="iconfont icon-arrowdownl"></b>
                 </a></div>
             <ul class="level02">
-                <li><a href="./article_list.html" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="./article_release.html" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="./article_category.html" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a></li>
+                <li><a href="./article_list.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <li><a href="./article_release.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <li><a href="./article_category.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a></li>
             </ul>
             <div class="level01">
                 <a href="./comment_list.html" target="main_frame">
@@ -65,7 +68,8 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-            <iframe name="main_frame" src="./main_count.html" frameborder="0" style="width: 100%;height: 100%;"></iframe>
+            <iframe name="main_frame" src="./main_count.html" frameborder="0"
+                style="width: 100%;height: 100%;"></iframe>
         </div>
     </div>
 
@@ -98,27 +102,60 @@
                     $('.user_center_link>img').attr('src', backData.data.userPic);
                 }
             });
+
+            //每一个ajax请求都要设置token令牌,不然人家接口以为你没有登录,那就不给你数据. 
+            //每一个ajax请求都要设置token令牌,那就很烦人了. 
+            //那我们就想可不可以在一个地方设置,每次发送ajax请求之前都去执行那个地方.
+            //那每次发送ajax请求不都有token令牌了吗? 
+            //我们把这种叫做全局设置. 
+            //我们每次发送ajax请求,都是用的jQuery发送的. 
+            //每次都要引入jQuery, 也就是说这个引入的jQuery文件每次都会执行的. 
+            //所以这个全局设置写在这个引入的jQuery文件中. 
+
+            // 退出系统
+            $('.logout').on('click', function () {
+                if (confirm('确定要退出吗？')) {
+                    // 移出token
+                    localStorage.removeItem('token');
+                    window.location.href = './login.html';
+                }
+
+            });
+
+            // ul下的li点击事件
+            $('.level01').on('click', function () {
+                $(this).addClass('active').siblings('div').removeClass('active');
+                // 判断点击的是否是文章管理
+                if ($(this).index() == 1) {
+                    // 二级菜单显示就隐藏，隐藏就显示
+                    $('ul.level02').slideToggle();
+                    //设置小剑尖的旋转
+                    $(this).find('b').toggleClass('rotate0');
+                    // 默认选中第一个二级菜单
+                    //首页你要明白给谁注册的事件:
+                    //第一个二级菜单(文章列表)里面的a标签,转成dom对象,触发他的单击事件. 
+                    //a标签的dom元素的单击事件, 不仅会触发单击事件,还会触发超链接
+                    //触发超链接就会用iframe标签打开这个超链接对应的页面
+                    //触发单击事件,会事件冒泡,那不就相当于触发了她的父亲也就是li标签的单击事件吗
+                    //那不就有了选中的文字颜色了吗?
+                    $('ul.level02>li:eq(0)>a')[0].click();
+                }
+            });
+
+            // 左侧二级菜单设置点击事件
+            $('ul.level02>li').on('click',function(){
+                $(this).addClass('active').siblings().removeClass('active');
+            })
+
+
+
+
+
+
+
+
         });
 
-        //每一个ajax请求都要设置token令牌,不然人家接口以为你没有登录,那就不给你数据. 
-        //每一个ajax请求都要设置token令牌,那就很烦人了. 
-        //那我们就想可不可以在一个地方设置,每次发送ajax请求之前都去执行那个地方.
-        //那每次发送ajax请求不都有token令牌了吗? 
-        //我们把这种叫做全局设置. 
-        //我们每次发送ajax请求,都是用的jQuery发送的. 
-        //每次都要引入jQuery, 也就是说这个引入的jQuery文件每次都会执行的. 
-        //所以这个全局设置写在这个引入的jQuery文件中. 
-
-
-        // 退出系统
-        $('.logout').on('click', function () {
-            if (confirm('确定要退出吗？')) {
-                // 移出token
-                localStorage.removeItem('token');
-                window.location.href = './login.html';
-            }
-
-        })
     </script>
 </body>
 
