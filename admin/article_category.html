@@ -63,14 +63,14 @@
                 <div class="modal-body">
                     <form>
                         <!-- 隐藏域：用来保存 编辑的文章类别的 id -->
-                        <input type="hidden" name="" id="categoryId">
+                        <input type="hidden" name="id" id="categoryId">
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">分类名称:</label>
-                            <input type="text" class="form-control" id="recipient-name">
+                            <input type="text" name="name" class="form-control" id="recipient-name">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="control-label">分类别名:</label>
-                            <input type="text" class="form-control" id="message-text">
+                            <input type="text" name="slug" class="form-control" id="message-text">
                         </div>
                     </form>
                 </div>
@@ -165,9 +165,27 @@
                     });
                 } else {
                     // 编辑按钮
-                    var categoryName = $('#recipient-name').val().trim();
-                    var categoryText = $('#message-text').val().trim();
-                    var categoryId = $('#categoryId').val().trim(); //文章分类 id
+                    // 获取 要编辑的 文章类别 的名称和别名
+                    // var categoryName = $('#recipient-name').val().trim();
+                    // var categoryText = $('#message-text').val().trim();
+                    // var categoryId = $('#categoryId').val().trim(); //文章分类 id
+                    // 上面这三句话是获取form表单中的数据
+                    // 那如果不是散户话，而是三十句话，那按照上面这种写法来获取，那会很累
+                    // 如果不那么累，我们想到了formData
+                    // 因为formData可以一次性全部获取form表单中拥有name属性的标签的值
+                    // 但是有个问题，formData需要后端的支持才行
+                    // 那此时，我们文章类别编辑的接口，后端没有告诉我们可以使用formData
+                    // jQuery有一个方法serialize()方法
+                    // 这个方法也是可以一次性获取form表单中带有name属性标签的值
+                    // 一般我们叫做表单序列化（表单所有的name属性标签的值用serialize方法来获取）
+
+                    // formData对象需要创建，传入是form表单dom对象，serialize()直接是form表单jQuery对象调用
+                    // formData传递过去的是一个formData对象，而serialize()方法传过去的是一个字符串
+                    // formData可以传递文件（比如说图片），但是serialize()不行。
+                    var data = $('#myModal form').serialize(); 
+                    // console.log(data); //id=16&name=%E4%BD%A0%E6%82%A812&slug=%E5%8F%91%E6%80%92%E6%94%BE%E4%BD%A0344
+                    // return;
+
                     if (categoryName == '' || categoryText == '') {
                         alert('不能为空');
                         return;
@@ -176,11 +194,13 @@
                     $.ajax({
                         type: 'post',
                         url: BigNew.category_edit,
-                        data: {
-                            id: categoryId,
-                            name: categoryName,
-                            slug: categoryText
-                        },
+                        // data: {
+                        //     id: categoryId,
+                        //     name: categoryName,
+                        //     slug: categoryText
+                        // },
+                        // 传递的数据参数，是jQuery使用它的serialize()方法帮我们获取到的数据
+                        data:data,
                         success: function (backData) {
                             // console.log(backData);
                             if (backData.code == 200) {
