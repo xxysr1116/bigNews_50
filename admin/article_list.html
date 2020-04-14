@@ -122,6 +122,8 @@
                 }
             });
 
+            // -----------------------------------------------------------
+            var courrentPage = 1; //当前页码
             // 发送ajax请求,根据条件获取对应的所有文章数据,封装成一个函数
             //myPage就是当前的页码
             //callback就是渲染数据完成后要做的事情
@@ -147,9 +149,16 @@
                                 $('#pagination').show().next('p').hide();
                                 // 把获取回来的数据在调用callback的时候作为实参传递
                                 callback(backData);
-                            } else if (backData.data.data.length == 0) {
+                            } 
+                            // 如果你当前页是1，并且发送ajax又没有文章
+                            // 那就说明这个文章分类其实没有文章
+                            else if (backData.data.data.length == 0 && courrentPage == 1) {
                                 // 没有数据
                                 $('#pagination').hide().next('p').show();
+                            }else if(backData.data.totalPage == courrentPage -1 && backData.data.data.length == 0){
+                                courrentPage -= 1;
+                                // 重绘分页结构
+                                $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, courrentPage);
                             }
                         }
                     }
@@ -170,6 +179,7 @@
                     last: '尾页',
                     // 页面的点击回调函数事件
                     onPageClick: function (event, page) {
+                        courrentPage = page; //当前页码赋值给全局courrentPage
                         // console.log(page);  //当前点击的页码
                         //重新发送ajax请求,把当前点击的这个页码传进去。
                         getData(page, null);
@@ -182,6 +192,8 @@
             $('#btnSearch').on('click', function (e) {
                 // 取消默认提交行为
                 e.preventDefault();
+                // 把当前页改为1
+                courrentPage = 1;
                 // 发送ajax请求
                 getData(1, function (backData) {
                     // 点击筛选按钮,由于改变了筛选条件,所以筛选出来的数据总页码会发生改变
@@ -189,6 +201,40 @@
                     $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, 1);
                 });
             })
+
+            // 4.删除文章
+            // 委托注册（最近的共同父节点：tbody）
+            $('tbody').on('click','.delete',function(){
+                if (confirm('你确定要删除吗？')) {
+                    // 获取删除文章的id
+                    var articleId = $(this).attr('data-id');
+                    // 发送ajax请求
+                    $.ajax({
+                        type:'post',
+                        url:BigNew.article_delete,
+                        data:{
+                            id:articleId
+                        },
+                        success:function(backData){
+                            // console.log(backData);
+                            if (backData.code == 204) {
+                                // 删除成功，重新加载数据
+                                // 由于删除了数据，那总页码就有可能减少
+                                // 那就根据新总页码 重绘分页结构
+                                getData(courrentPage,function(backData){
+                                    $('#pagination').twbsPagination('changeTotalPages', backData.data.totalPage, courrentPage);
+                                });
+                            }
+                        }
+                    });
+                }
+            })
+
+            // 5.点击发布文章
+            // 左边导航栏，导航到发表文章哪里
+            $('#release_btn').on('click',function(){
+                parent.$('ul.level02>li:eq(1)').click();
+            });
 
 
 
