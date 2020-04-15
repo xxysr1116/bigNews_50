@@ -301,7 +301,7 @@
     <script id="categoryId_temp" type="text/html">
         {{each data v}}
         <li>
-            <a href="./list.html?id={{v.id}}">{{v.name}}</a>
+            <a href="./list.html?categoryId={{v.id}}">{{v.name}}</a>
         </li>
         {{/each}}
     </script>
@@ -399,7 +399,7 @@
                     alert('搜索内容不能为空!');
                     return;
                 }
-                window.location.href = './article.html?id='+searchTxt;
+                window.location.href = './list.html?search='+searchTxt;
                 
             })
         })
